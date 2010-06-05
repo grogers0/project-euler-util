@@ -48,13 +48,13 @@
   (let [x (int (Math/round (Math/sqrt n)))]
     (= (square x) n)))
 
-(defn exp [b n]
+(defn pow [b n]
   "Raise a number b to the power n"
   (if (= n 0)
     1
     (if (even? n)
-      (square (exp b (/ n 2)))
-      (* b (exp b (dec n))))))
+      (square (pow b (/ n 2)))
+      (* b (pow b (dec n))))))
 
 (defn abs [x]
   "Returns the absolute value of x"
@@ -80,6 +80,22 @@
         (list i)
         (cons i (continued-fractions (/ f)))))))
 
+(defn continued-fractions-sqrt
+  "Returns a lazy sequence of the continued fractions which approximate (sqrt n)"
+  ([n] (continued-fractions-sqrt n 0 1))
+  ([n a b]
+   (lazy-seq
+     (if (square? n)
+       (list (int (Math/round (Math/sqrt n))))
+       (let [m (int (/ (+ (Math/sqrt n) a) b))
+             anext (+ (- a) (* m b))
+             bnext (/ (+ n
+                         (- (square a))
+                         (* 2 a m b)
+                         (- (* (square m) (square b))))
+                      b)]
+         (cons m (continued-fractions-sqrt n anext bnext)))))))
+
 (defn convergent [cf]
   "Returns the rational approximation of the continued fractions cf"
   (if (nil? (seq cf))
@@ -91,3 +107,35 @@
           x
           (recur (+ (first cf) (/ x))
                  (next cf)))))))
+
+(defn prime-factors [n]
+  "Returns a map of the prime factors of n, with the keys being the factors
+  and the values being the number of times that factor is repeated"
+  (loop [n n
+         factors {}]
+    (if (<= n 1)
+      factors
+      (let [root (int (Math/round (Math/sqrt n)))
+            factor (loop [p 2
+                          ps (next (primes root))]
+                     (if (= (mod n p) 0)
+                       p
+                       (if (nil? ps)
+                         n
+                         (recur (first ps) (next ps)))))]
+        (recur (/ n factor)
+               (if (contains? factors factor)
+                 (assoc factors factor (inc (get factors factor)))
+                 (assoc factors factor 1)))))))
+
+(defn totient [n]
+  "Returns Euler's totient (phi function) of n - the number of integers less
+  than n which is coprime to n"
+  (if (<= n 1)
+    n
+    (let [factors (prime-factors n)]
+      (reduce (fn [acc fact]
+                (let [p (key fact)
+                      k (val fact)]
+                  (* acc (dec p) (pow p (dec k)))))
+              1 factors))))
