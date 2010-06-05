@@ -45,7 +45,7 @@
 
 (defn square? [n]
   "Returns true if a number is a perfect square"
-  (let [x (int (Math/floor (Math/sqrt n)))]
+  (let [x (int (Math/round (Math/sqrt n)))]
     (= (square x) n)))
 
 (defn exp [b n]
@@ -56,15 +56,20 @@
       (square (exp b (/ n 2)))
       (* b (exp b (dec n))))))
 
+(defn abs [x]
+  "Returns the absolute value of x"
+  (if (pos? x)
+    x
+    (- x)))
+
 (defn float-near-zero? [x]
-  (or (and (pos? x) (< x 1e-6))
-      (and (neg? x) (> x -1e-6))))
+  (< (abs x) 1e-6))
 
 (defn near-zero? [x]
   "Returns true if x is either a number or rational and is 0, or is a float and is very near 0"
-  (cond
-    (float? x) (float-near-zero? x)
-    :else (zero? x)))
+  (if (float? x)
+    (float-near-zero? x)
+    (zero? x)))
 
 (defn continued-fractions [r]
   "Returns a lazy sequence of the continued fractions which approximate r"
@@ -77,12 +82,12 @@
 
 (defn convergent [cf]
   "Returns the rational approximation of the continued fractions cf"
-  (if (zero? (count cf))
+  (if (nil? (seq cf))
     0
     (let [cf (reverse cf)]
       (loop [x (first cf)
-             cf (rest cf)]
-        (if (zero? (count cf))
+             cf (next cf)]
+        (if (nil? cf)
           x
           (recur (+ (first cf) (/ x))
-                 (rest cf)))))))
+                 (next cf)))))))
