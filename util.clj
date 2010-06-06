@@ -132,21 +132,25 @@
   "Returns the number made by the prime factors given by factors, where factors
   is a map with keys as the factors and values as the number of times that
   factor appears"
-  (reduce (fn [acc fact]
-            (let [p (key fact)
-                  k (val fact)]
-              (* acc (pow p k))))
-          1 factors))
+  (if (nil? (first factors))
+    0
+    (reduce (fn [acc fact]
+              (let [p (key fact)
+                    k (val fact)]
+                (* acc (pow p k))))
+            1 factors)))
 
 (defn totient-from-factors [factors]
   "Returns Euler's totient (phi function) of the number made by the prime
   factors given by factors, where factors is a map with keys as the factors and
   values as the number of times that factor appears"
-  (reduce (fn [acc fact]
-            (let [p (key fact)
-                  k (val fact)]
-              (* acc (dec p) (pow p (dec k)))))
-          1 factors))
+  (if (nil? (first factors))
+    0
+    (reduce (fn [acc fact]
+              (let [p (key fact)
+                    k (val fact)]
+                (* acc (dec p) (pow p (dec k)))))
+            1 factors)))
 
 (defn totient [n]
   "Returns Euler's totient (phi function) of n - the number of integers less
