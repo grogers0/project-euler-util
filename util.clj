@@ -128,14 +128,41 @@
                  (assoc factors factor (inc (get factors factor)))
                  (assoc factors factor 1)))))))
 
+(defn number-from-factors [factors]
+  "Returns the number made by the prime factors given by factors, where factors
+  is a map with keys as the factors and values as the number of times that
+  factor appears"
+  (reduce (fn [acc fact]
+            (let [p (key fact)
+                  k (val fact)]
+              (* acc (pow p k))))
+          1 factors))
+
+(defn totient-from-factors [factors]
+  "Returns Euler's totient (phi function) of the number made by the prime
+  factors given by factors, where factors is a map with keys as the factors and
+  values as the number of times that factor appears"
+  (reduce (fn [acc fact]
+            (let [p (key fact)
+                  k (val fact)]
+              (* acc (dec p) (pow p (dec k)))))
+          1 factors))
+
 (defn totient [n]
   "Returns Euler's totient (phi function) of n - the number of integers less
   than n which is coprime to n"
-  (if (<= n 1)
-    n
-    (let [factors (prime-factors n)]
-      (reduce (fn [acc fact]
-                (let [p (key fact)
-                      k (val fact)]
-                  (* acc (dec p) (pow p (dec k)))))
-              1 factors))))
+  (totient-from-factors (prime-factors n)))
+
+(defn gcd
+  "Returns the greatest common divisor of multiple integers"
+  ([a b] (if (zero? b)
+           a
+           (gcd b (- a (* b (int (/ a b)))))))
+  ([a b & more] (reduce gcd (gcd a b) more))
+  ([more] (reduce gcd more)))
+
+(defn lcm
+  "Returns the least common multiple of multiple integers"
+  ([a b] (* a b (/ (gcd a b))))
+  ([a b & more] (reduce lcm (lcm a b) more))
+  ([more] (reduce lcm more)))
