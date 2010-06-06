@@ -32,12 +32,12 @@
   (if (<= n 1)
     false
     (let [root (int (Math/round (Math/floor (Math/sqrt n))))]
-      (loop [ps (primes root)]
-        (if (nil? (first ps))
+      (loop [primes (gen-primes root)]
+        (if (nil? (first primes))
           true
-          (if (= (mod n (first ps)) 0)
+          (if (= (mod n (first primes)) 0)
             false
-            (recur (next ps))))))))
+            (recur (next primes))))))))
 
 (defn square [n]
   "Squares a number, ie raises it to the power 2"
@@ -117,12 +117,12 @@
       factors
       (let [root (int (Math/round (Math/sqrt n)))
             factor (loop [p 2
-                          ps (next (primes root))]
+                          primes (next (gen-primes root))]
                      (if (= (mod n p) 0)
                        p
-                       (if (nil? ps)
+                       (if (nil? primes)
                          n
-                         (recur (first ps) (next ps)))))]
+                         (recur (first primes) (next primes)))))]
         (recur (/ n factor)
                (if (contains? factors factor)
                  (assoc factors factor (inc (get factors factor)))
