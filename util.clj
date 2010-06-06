@@ -1,7 +1,7 @@
 (ns util
   "Utility functions for solving project euler problems")
 
-(defn primes [n]
+(defn gen-primes [n]
   "Returns a list of all primes up to and including n"
   (if (< n 2)
     '()
@@ -33,7 +33,7 @@
     false
     (let [root (int (Math/round (Math/floor (Math/sqrt n))))]
       (loop [ps (primes root)]
-        (if (= (count ps) 0)
+        (if (nil? (first ps))
           true
           (if (= (mod n (first ps)) 0)
             false
@@ -170,3 +170,11 @@
   ([a b] (* a b (/ (gcd a b))))
   ([a b & more] (reduce lcm (lcm a b) more))
   ([more] (reduce lcm more)))
+
+(defn coprime?
+  "Returns if the input integers are coprime (relatively prime), ie. their
+  greatest common divisor is 1"
+  ([a b] (= (gcd a b) 1))
+  ([a b & more] (= (gcd (gcd a b) (gcd more)) 1))
+  ([more] (= (gcd more) 1)))
+
