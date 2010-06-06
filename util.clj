@@ -178,3 +178,11 @@
   ([a b & more] (= (gcd (gcd a b) (gcd more)) 1))
   ([more] (= (gcd more) 1)))
 
+(defn digit-seq [n]
+  "Returns a lazy sequence that iterates in reverse order over the decimal
+  digits in an integer"
+  (lazy-seq
+    (if (zero? n)
+      nil
+      (cons (mod n 10) (digit-seq (bigint (/ n 10)))))))
+
