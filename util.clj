@@ -172,16 +172,16 @@
 (defn coprime?
   "Returns if the input integers are coprime (relatively prime), ie. their
   greatest common divisor is 1"
-  ([a b] (= (gcd a b) 1))
   ([a b & more] (= (apply gcd a b more) 1)))
 
 (defn digit-seq [n]
   "Returns a lazy sequence that iterates in reverse order over the decimal
   digits in an integer"
   (lazy-seq
-    (if (zero? n)
-      nil
-      (cons (mod n 10) (digit-seq (bigint (/ n 10)))))))
+    (let [n (bigint n)]
+      (if (zero? n)
+        nil
+        (cons (mod n 10) (digit-seq (.divide n (bigint 10))))))))
 
 (defn factorial [n]
   "Returns the factorial of an integer"
