@@ -162,21 +162,18 @@
   ([a b] (if (zero? b)
            a
            (gcd b (- a (* b (int (/ a b)))))))
-  ([a b & more] (reduce gcd (gcd a b) more))
-  ([more] (reduce gcd more)))
+  ([a b & more] (reduce gcd (gcd a b) more)))
 
 (defn lcm
   "Returns the least common multiple of multiple integers"
   ([a b] (* a b (/ (gcd a b))))
-  ([a b & more] (reduce lcm (lcm a b) more))
-  ([more] (reduce lcm more)))
+  ([a b & more] (reduce lcm (lcm a b) more)))
 
 (defn coprime?
   "Returns if the input integers are coprime (relatively prime), ie. their
   greatest common divisor is 1"
   ([a b] (= (gcd a b) 1))
-  ([a b & more] (= (gcd (gcd a b) (gcd more)) 1))
-  ([more] (= (gcd more) 1)))
+  ([a b & more] (= (apply gcd a b more) 1)))
 
 (defn digit-seq [n]
   "Returns a lazy sequence that iterates in reverse order over the decimal
@@ -186,3 +183,19 @@
       nil
       (cons (mod n 10) (digit-seq (bigint (/ n 10)))))))
 
+(defn factorial [n]
+  "Returns the factorial of an integer"
+  (reduce * 1 (range 2 (inc n))))
+
+(defn zip
+  "lazily extracts one item at a time from the sequences and conj's them into
+  the data structure given by ds"
+  ([ds aseq] (lazy-seq
+               (if (nil? (seq aseq))
+                 nil
+                 (cons (conj ds (first aseq)) (zip ds (rest aseq))))))
+  ([ds aseq & more] (lazy-seq
+                      (if-not (not-any? #(nil? (seq %)) (cons aseq more))
+                        nil
+                        (cons (into ds (map first (cons aseq more)))
+                              (apply zip ds (rest aseq) (map rest more)))))))
