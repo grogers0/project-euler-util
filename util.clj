@@ -45,7 +45,7 @@
 
 (defn square? [n]
   "Returns true if a number is a perfect square"
-  (let [x (int (Math/round (Math/sqrt n)))]
+  (let [x (bigint (Math/round (Math/sqrt n)))]
     (= (square x) n)))
 
 (defn pow [b n]
@@ -70,6 +70,12 @@
   (if (float? x)
     (float-near-zero? x)
     (zero? x)))
+
+(defn nearly-equal? [a b]
+  "Returns true if a and b are very close to each other relative to their absolute value"
+  (if (near-zero? b)
+    (near-zero? a)
+    (< (abs (/ (- a b) b)) 1e-6)))
 
 (defn continued-fractions [r]
   "Returns a lazy sequence of the continued fractions which approximate r"
@@ -161,7 +167,7 @@
   "Returns the greatest common divisor of multiple integers"
   ([a b] (if (zero? b)
            a
-           (gcd b (- a (* b (int (/ a b)))))))
+           (gcd b (- a (* b (bigint (/ a b)))))))
   ([a b & more] (reduce gcd (gcd a b) more)))
 
 (defn lcm
