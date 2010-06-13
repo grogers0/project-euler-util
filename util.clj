@@ -77,6 +77,20 @@
     (near-zero? a)
     (< (abs (/ (- a b) b)) 1e-6)))
 
+(defn countmap
+  "With no arguments creates an empty countmap, with one or two arguments
+  creates a countmap with ks as its keys and optionally vs as its vals,
+  if vs are not specified, they will be 1"
+  ([] {})
+  ([ks] (countmap ks (repeat 1)))
+  ([ks vs] (apply hash-map (interleave ks vs))))
+
+(defn countmap-insert
+  "Increments the count of the item in the countmap by n, or if n is not
+  present, by 1 and returns this new countmap"
+  ([coll item] (countmap-insert coll item 1))
+  ([coll item n] (merge-with + coll {item n})))
+
 (defn continued-fractions [r]
   "Returns a lazy sequence of the continued fractions which approximate r"
   (lazy-seq
@@ -118,33 +132,24 @@
   "Returns a map of the prime factors of n, with the keys being the factors
   and the values being the number of times that factor is repeated"
   (loop [n n
-         factors {}]
+         factors (countmap)]
     (if (<= n 1)
       factors
       (let [root (int (Math/round (Math/sqrt n)))
-            factor (loop [p 2
-                          primes (next (gen-primes root))]
-                     (if (= (mod n p) 0)
-                       p
-                       (if (nil? primes)
-                         n
-                         (recur (first primes) (next primes)))))]
-        (recur (/ n factor)
-               (if (contains? factors factor)
-                 (assoc factors factor (inc (get factors factor)))
-                 (assoc factors factor 1)))))))
+            factor (loop [p 2, primes (next (gen-primes root))]
+                     (cond (= (mod n p) 0) p
+                       (empty? primes) n
+                       :else (recur (first primes) (next primes))))]
+        (recur (/ n factor) (countmap-insert factors factor))))))
 
 (defn number-from-factors [factors]
   "Returns the number made by the prime factors given by factors, where factors
   is a map with keys as the factors and values as the number of times that
   factor appears"
-  (if (nil? (first factors))
-    0
-    (reduce (fn [acc fact]
-              (let [p (key fact)
-                    k (val fact)]
-                (* acc (pow p k))))
-            1 factors)))
+  (reduce (fn [acc fact]
+            (let [p (key fact), k (val fact)]
+              (* acc (pow p k))))
+          1 factors))
 
 (defn totient-from-factors [factors]
   "Returns Euler's totient (phi function) of the number made by the prime
@@ -153,8 +158,7 @@
   (if (nil? (first factors))
     0
     (reduce (fn [acc fact]
-              (let [p (key fact)
-                    k (val fact)]
+              (let [p (key fact), k (val fact)]
                 (* acc (dec p) (pow p (dec k)))))
             1 factors)))
 
