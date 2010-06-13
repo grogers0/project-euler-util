@@ -205,3 +205,12 @@
                         nil
                         (cons (into ds (map first (cons aseq more)))
                               (apply zip ds (rest aseq) (map rest more)))))))
+
+(defn unique
+  "Returns a lazy sequence with consecutive elements in coll removed, where
+  the comparison is done either with pred, or = if pred is not supplied"
+  ([coll] (unique = coll))
+  ([pred coll] (lazy-seq
+                 (if-let [s (seq coll)]
+                   (cons (first s) (unique (drop-while #(pred % (first s)) s)))
+                   coll))))
