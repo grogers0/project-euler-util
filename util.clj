@@ -27,6 +27,21 @@
                      (conj result i)
                      result))))))))
 
+(defn- lazy-sieve [coll table]
+  (lazy-seq
+    (if-let [x (first coll)]
+      (if-let [factors (table x)]
+        (lazy-sieve (rest coll)
+                    (letfn [(reinsert [table prime]
+                              (let [k (+ x prime)]
+                                (assoc table k (conj (table k) prime))))]
+                      (reduce reinsert (dissoc table x) factors)))
+        (cons x (lazy-sieve (rest coll) (assoc table (square x) (list x))))))))
+
+(defn lazy-primes []
+  "Returns a lazy sequence of all primes in increasing order"
+  (lazy-sieve (cons 2 (range 3 Double/POSITIVE_INFINITY 2) {}))
+
 (defn prime? [n]
   "Returns whether a number is prime or not"
   (if (<= n 1)
