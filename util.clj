@@ -49,7 +49,7 @@
 
 (defn lazy-primes []
   "Returns a lazy sequence of all primes in increasing order"
-  (lazy-sieve (cons 2 (range 3 Double/POSITIVE_INFINITY 2) {})))
+  (lazy-sieve (cons 2 (range 3 Double/POSITIVE_INFINITY 2)) {}))
 
 (defn prime? [n]
   "Returns whether a number is prime or not"
